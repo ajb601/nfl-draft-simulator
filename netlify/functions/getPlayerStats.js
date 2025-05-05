@@ -1,40 +1,39 @@
 exports.handler = async function(event, context) {
     const fetch = await import('node-fetch').then(mod => mod.default);
   
+    const apiKey = process.env.CFD_API_KEY;
+    const { team, season } = event.queryStringParameters || {};
+  
+    if (!apiKey) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: 'API key is missing from environment variables' })
+      };
+    }
+  
     try {
-      const { team, season } = event.queryStringParameters || {};
-  
-      if (!team || !season) {
-        return {
-          statusCode: 400,
-          body: JSON.stringify({ error: 'Missing team or season in query params' })
-        };
-      }
-  
-      const apiKey = process.env.CFD_API_KEY;
-  
-      if (!apiKey) {
-        return {
-          statusCode: 500,
-          body: JSON.stringify({ error: 'Missing API key in environment variables' })
-        };
-      }
-  
-      const response = await fetch(`https://api.collegefootballdata.com/player/stats?team=${team}&season=${season}`, {
+      const url = `https://api.collegefootballdata.com/player/stats?team=${team}&season=${season}`;
+      
+      const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${apiKey}`
         }
       });
   
+      const text = await response.text(); // Grab raw text so we can debug
+  
       if (!response.ok) {
-        const text = await response.text();
         return {
           statusCode: response.status,
-          body: JSON.stringify({ error: 'API error', status: response.status, response: text })
+          body: JSON.stringify({
+            error: 'API response not ok',
+            status: response.status,
+            text: text.slice(0, 200)  // limit in case it's an HTML page
+          })
         };
       }
   
-      const data = await response.json();
+      const data = JSON.parse(text);
   
       return {
         statusCode: 200,
@@ -43,7 +42,10 @@ exports.handler = async function(event, context) {
     } catch (err) {
       return {
         statusCode: 500,
-        body: JSON.stringify({ error: 'Function error', details: err.message })
+        body: JSON.stringify({
+          error: 'Exception thrown',
+          message: err.message
+        })
       };
     }
   };
