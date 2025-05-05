@@ -1,23 +1,38 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import PlayerCard from './components/PlayerCard';
 
 function App() {
+  const [players, setPlayers] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchPlayerStats = async () => {
+    setLoading(true);
+
+    try {
+      const res = await fetch('/.netlify/functions/getPlayerStats?team=Alabama&season=2023');
+      const data = await res.json();
+      setPlayers(data);
+    } catch (err) {
+      console.error('Error fetching player stats:', err);
+    }
+
+    setLoading(false);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div style={{ padding: '2rem' }}>
+      <h1>NFL Draft Simulator (Prototype)</h1>
+      <button onClick={fetchPlayerStats}>
+        {loading ? 'Loading...' : 'Get Alabama Players'}
+      </button>
+
+      {players.length > 0 && (
+        <div style={{ marginTop: '2rem' }}>
+          {players.map((player, index) => (
+            <PlayerCard key={index} player={player} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
