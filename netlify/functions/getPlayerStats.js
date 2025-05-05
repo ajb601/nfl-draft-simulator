@@ -3,7 +3,8 @@ exports.handler = async function(event, context) {
     const apiKey = process.env.CFD_API_KEY;
   
     try {
-      const response = await fetch('https://api.collegefootballdata.com/teams/fbs', {
+      const url = `https://api.collegefootballdata.com/stats/player/season?year=2023`;
+      const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${apiKey}`
         }

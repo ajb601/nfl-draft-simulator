@@ -9,7 +9,7 @@ function App() {
     setLoading(true);
   
     try {
-      const res = await fetch('/.netlify/functions/getPlayerStats?team=Alabama&season=2023');
+      const res = await fetch('/.netlify/functions/getPlayerStats');
       const data = await res.json();
       console.log("API data:", data); // ← Log here
   
