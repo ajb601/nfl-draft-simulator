@@ -7,17 +7,19 @@ function App() {
 
   const fetchPlayerStats = async () => {
     setLoading(true);
-
+  
     try {
       const res = await fetch('/.netlify/functions/getPlayerStats?team=Alabama&season=2023');
       const data = await res.json();
+      console.log("API data:", data); // ← Log here
+  
       setPlayers(data);
     } catch (err) {
       console.error('Error fetching player stats:', err);
     }
-
+  
     setLoading(false);
-  };
+  };  
 
   return (
     <div style={{ padding: '2rem' }}>
